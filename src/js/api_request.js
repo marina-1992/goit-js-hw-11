@@ -8,7 +8,7 @@ const API_KEY = '38696137-0a6b9787b2b59d7133eac1c9a';
 
 export async function fetchPhoto(q, page, perPage) {
   try {
-    const url = `${BASE_URL}/?key=${API_KEY}&q=${q}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per-page=${perPage}`
+    const url = `${BASE_URL}/?key=${API_KEY}&q=${q}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${perPage}`
     const response = await axios.get(url)
     return (response.data)
   } catch (error) {
