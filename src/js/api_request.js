@@ -13,14 +13,14 @@ export async function fetchPhoto(q, page, perPage) {
     return response.data;
   } catch (error) {
     console.error(error.message);
-    Notify.failure(
-      'Oops! Something went wrong! Try reloading the page or select another animal!',
-      {
-        position: 'center-center',
-        timeout: 1000,
-        width: '700px',
-        fontSize: '24px',
-      }
-    );
+    // Notify.failure(
+    //   'Oops! Something went wrong! Try reloading the page or select another animal!',
+    //   {
+    //     position: 'center-center',
+    //     timeout: 1000,
+    //     width: '700px',
+    //     fontSize: '24px',
+    //   }
+    // );
   }
 }

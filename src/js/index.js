@@ -18,11 +18,12 @@ let lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
-// const searchPhoto = data.hits;
+
 let page = 1;
 const perPage = 40;
 let q = '';
-let pageNumber = 0;
+// let pageNumber = 0;
+const queryTotalHitsMap = {};
 // задаємо опціі для нескінченного скролу
 let options = {
   root: null,
@@ -32,30 +33,31 @@ let options = {
 
 let observer = new IntersectionObserver(onLoad, options);
 // перебираємо, і коли вьюпорт перетинається з межею 300пікселів додаємо сторінку
-
 function onLoad(entries, observer) {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      if (pageNumber === 1) {
-        observer.unobserve(refs.target);
-        return;
-      }
       page += 1;
-      fetchPhoto(q, page, perPage).then(data => {
-        const searchPhoto = data.hits;
-        refs.gallery.insertAdjacentHTML(
-          'beforeend',
-          createMarkupGallery(searchPhoto)
-        );
-      });
-      if (page === pageNumber) {
+      const totalHits = queryTotalHitsMap[q];
+      if (page * perPage >= totalHits) {
+        observer.unobserve(refs.target);
         Notify.info(
           'We`re sorry, but you`ve reached the end of search results.',
           paramsNotiflix
         );
-        observer.unobserve(refs.target);
       }
-      lightbox.refresh();
+      fetchPhoto(q, page, perPage)
+        .then(data => {
+          queryTotalHitsMap[q] = data.totalHits;
+          const searchPhoto = data.hits;
+          refs.gallery.insertAdjacentHTML(
+            'beforeend',
+            createMarkupGallery(searchPhoto)
+          );
+          lightbox.refresh();
+        })
+        .catch(error => {
+          console.error(error.message);
+        });
     }
   });
 }
