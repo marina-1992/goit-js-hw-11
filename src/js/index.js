@@ -18,10 +18,11 @@ let lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
-
+// const searchPhoto = data.hits;
 let page = 1;
 const perPage = 40;
 let q = '';
+let pageNumber = 0;
 // задаємо опціі для нескінченного скролу
 let options = {
   root: null,
@@ -31,11 +32,30 @@ let options = {
 
 let observer = new IntersectionObserver(onLoad, options);
 // перебираємо, і коли вьюпорт перетинається з межею 300пікселів додаємо сторінку
+
 function onLoad(entries, observer) {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
+      if (pageNumber === 1) {
+        observer.unobserve(refs.target);
+        return;
+      }
       page += 1;
-      handleFetchPhoto();
+      fetchPhoto(q, page, perPage).then(data => {
+        const searchPhoto = data.hits;
+        refs.gallery.insertAdjacentHTML(
+          'beforeend',
+          createMarkupGallery(searchPhoto)
+        );
+      });
+      if (page === pageNumber) {
+        Notify.info(
+          'We`re sorry, but you`ve reached the end of search results.',
+          paramsNotiflix
+        );
+        observer.unobserve(refs.target);
+      }
+      lightbox.refresh();
     }
   });
 }
@@ -45,7 +65,15 @@ function onSubmitForm(event) {
   q = refs.searchInput.value;
   page = 1;
   refs.gallery.innerHTML = '';
-  handleFetchPhoto();
+
+  if (q === '') {
+    refs.gallery.innerHTML = '';
+    return Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+  } else {
+    handleFetchPhoto();
+  }
 }
 
 function handleFetchPhoto() {
